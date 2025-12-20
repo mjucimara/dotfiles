@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+#!/bin/bash
+
+if [ -f /run/.toolboxenv ]; then
+  echo "VS Code não existe dentro do toolbox. Use no host."
+  exit 1
+fi
+
+exec flatpak run com.visualstudio.code "$@"

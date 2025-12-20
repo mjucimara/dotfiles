@@ -1,0 +1,78 @@
+// -*- mode: jsonc -*-
+{
+    "height": 26,
+    "spacing": 6,
+
+    // =========================
+    // MODULES ORDER
+    // =========================
+
+    "modules-left": [
+        "sway/workspaces",
+        "sway/mode"
+    ],
+
+    "modules-center": [
+        "sway/window"
+    ],
+
+    "modules-right": [
+        "network",
+        "pulseaudio",
+        "battery",
+        "clock",
+        "tray"
+    ],
+
+    // =========================
+    // MODULES CONFIG
+    // =========================
+
+    "sway/workspaces": {
+        "disable-scroll": true,
+        "all-outputs": true
+    },
+
+    "sway/mode": {
+        "format": "<i>{}</i>"
+    },
+
+    "sway/window": {
+        "max-length": 40
+    },
+
+    "network": {
+        "interval": 10,
+        "format-wifi": "",
+        "format-ethernet": "",
+        "format-disconnected": "",
+        "tooltip": false
+    },
+
+    "pulseaudio": {
+        "interval": 5,
+        "format": "{volume}%",
+        "format-muted": "muted",
+        "on-click": "pavucontrol"
+    },
+
+    "battery": {
+        "interval": 30,
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{capacity}%",
+        "format-charging": "{capacity}%+",
+        "format-plugged": "{capacity}%="
+    },
+
+    "clock": {
+        "interval": 60,
+        "format": "{:%H:%M}"
+    },
+
+    "tray": {
+        "spacing": 8
+    }
+}

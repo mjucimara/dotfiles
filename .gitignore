@@ -1,0 +1,30 @@
+# Temporários
+*~
+*.swp
+*.swo
+*.bak
+*.tmp
+.DS_Store
+
+# Histórico local
+archives/
+
+# Cache
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+
+# Logs
+**/*.log
+
+# Segredos
+**/*.key
+**/*.pem
+**/*.crt
+**/*.token
+**/*secret*
+**/*credentials*
+
+# IDE
+.vscode/
+.idea/

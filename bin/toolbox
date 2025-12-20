@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+TOOLBOX_BIN="/usr/bin/toolbox"
+
+if [[ -n "${FLATPAK_ID:-}" ]]; then
+  exec flatpak-spawn --host "$TOOLBOX_BIN" "$@"
+else
+  exec "$TOOLBOX_BIN" "$@"
+fi

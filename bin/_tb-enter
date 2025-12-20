@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Configurações
+readonly PROJECTS_DIR="${HOME}/Projects"
+readonly TEMPLATES_DIR="${TEMPLATES_DIR:-$HOME/Projects/templates}"
+
+
+# Validação do argumento
+if [[ $# -eq 0 ]]; then
+    echo "❌ Uso: $0 {api|auto|data}"
+    echo "   Ou: tbapi, tbauto, tbdata (com alias)"
+    exit 1
+fi
+
+TYPE="${1}"
+case "${TYPE}" in
+    api)
+        readonly TOOLBOX_NAME="toolbox-api"
+        readonly TEMPLATE_NAME="template-api-fastapi"
+        ;;
+    auto|automation)
+        readonly TOOLBOX_NAME="toolbox-automation"
+        readonly TEMPLATE_NAME="template-automation-python"
+        ;;
+    data|dashboard)
+        readonly TOOLBOX_NAME="toolbox-data"
+        readonly TEMPLATE_NAME="template-data-dashboard"
+        ;;
+    *)
+        echo "❌ Tipo inválido: '${TYPE}'"
+        echo "   Opções válidas: api, auto/automation, data/dashboard"
+        exit 1
+        ;;
+esac
+
+# Diretório atual (caminho absoluto, sem symlinks)
+CWD="$(pwd -P 2>/dev/null || pwd)"
+readonly CWD
+
+# Funções auxiliares
+is_inside_projects() {
+    [[ "${CWD}" == "${PROJECTS_DIR}"/* ]]
+}
+
+has_project_files() {
+    [[ -f "${CWD}/pyproject.toml" ]] || [[ -f "${CWD}/Makefile" ]]
+}
+
+toolbox_exists() {
+    toolbox list --containers 2>/dev/null | awk 'NR>1 {print $NF}' | grep -qFx "${TOOLBOX_NAME}"
+}
+
+# Detecção do diretório alvo
+TARGET_DIR=""
+if is_inside_projects && has_project_files; then
+    TARGET_DIR="${CWD}"
+    echo "🔍 Projeto válido detectado:"
+    echo "   ${TARGET_DIR}"
+else
+    # Verifica se o template existe
+    TEMPLATE_PATH="${TEMPLATES_DIR}/${TEMPLATE_NAME}"
+    if [[ ! -d "${TEMPLATE_PATH}" ]]; then
+        echo "⚠️  Aviso: Template não encontrado em:"
+        echo "   ${TEMPLATE_PATH}"
+        echo "   Usando diretório home como fallback."
+        TARGET_DIR="${HOME}"
+    else
+        TARGET_DIR="${TEMPLATE_PATH}"
+        echo "📂 Fora de projeto ou sem arquivos de projeto."
+        echo "➡ Template recomendado:"
+        echo "   ${TARGET_DIR}"
+    fi
+fi
+
+readonly TARGET_DIR
+
+# -------- DECISÃO PRINCIPAL --------
+echo
+if toolbox_exists; then
+    echo "🚀 Toolbox encontrada: ${TOOLBOX_NAME}"
+    echo "   Entrando..."
+    echo "------------------------------"
+    exec toolbox enter "${TOOLBOX_NAME}"
+else
+    echo "📦 Toolbox '${TOOLBOX_NAME}' não encontrada."
+    echo "   Criando..."
+    echo "------------------------------"
+    
+    if toolbox create "${TOOLBOX_NAME}" > /dev/null 2>&1; then
+        echo "✅ Toolbox criada com sucesso!"
+        echo
+        echo "➡ Para entrar, execute:"
+        echo "   toolbox enter ${TOOLBOX_NAME}"
+        echo
+        echo "➡ Dentro da toolbox, vá para:"
+        echo "   cd ${TARGET_DIR}"
+    else
+        echo "❌ Falha ao criar toolbox!"
+        echo "   Verifique se o Podman está rodando e tente novamente."
+        exit 1
+    fi
+fi

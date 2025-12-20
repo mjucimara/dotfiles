@@ -1,0 +1,100 @@
+* {
+    font-family: "Noto Sans Mono", "Font Awesome 6 Free", monospace;
+    font-size: 13px;
+}
+
+window#waybar {
+    background-color: rgba(43, 48, 59, 0.5);
+    border-bottom: 2px solid rgba(100, 114, 125, 0.5);
+    color: #ffffff;
+}
+
+/* =========================
+   WORKSPACES
+   ========================= */
+
+#workspaces button {
+    padding: 0 5px;
+    background: transparent;
+    color: #ffffff;
+}
+
+#workspaces button.focused {
+    background-color: #64727D;
+}
+
+#workspaces button.urgent {
+    background-color: #eb4d4b;
+}
+
+/* =========================
+   MODULE COMMON STYLE
+   ========================= */
+
+#clock,
+#battery,
+#network,
+#pulseaudio,
+#tray,
+#mode {
+    padding: 0 8px;
+}
+
+/* =========================
+   MODULE COLORS
+   ========================= */
+
+#clock {
+    background-color: #64727D;
+}
+
+#network {
+    background-color: #2980b9;
+}
+
+#pulseaudio {
+    background-color: #f1c40f;
+    color: #000000;
+}
+
+#pulseaudio.muted {
+    background-color: #90b1b1;
+    color: #2a5c45;
+}
+
+#battery {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+#battery.charging,
+#battery.plugged {
+    background-color: #26A65B;
+    color: #ffffff;
+}
+
+#battery.warning:not(.charging) {
+    background-color: #f39c12;
+    color: #000000;
+}
+
+#battery.critical:not(.charging) {
+    background-color: #f53c3c;
+    color: #ffffff;
+}
+
+/* =========================
+   TRAY
+   ========================= */
+
+#tray {
+    background-color: #2980b9;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    background-color: #eb4d4b;
+}

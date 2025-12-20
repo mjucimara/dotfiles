@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+timeout 10s "$@" || {
+  echo "⏱️ Timeout atingido. Processo abortado."
+  exit 1
+}

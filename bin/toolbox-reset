@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "⛔ Removendo toolboxes"
+
+toolbox list | awk '{print $1}' | while read -r tb; do
+  toolbox rm -f "$tb" || true
+done
+
+echo "🧹 Removendo imagens toolbox"
+podman images | awk '/toolbox/ {print $3}' | xargs -r podman rmi -f || true
+
+echo "✅ Reset concluído"

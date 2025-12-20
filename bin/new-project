@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# new-project — cria projetos a partir de templates
+
+DOTFILES_DIR="$HOME/.dotfiles"
+TEMPLATES_DIR="$DOTFILES_DIR/templates"
+PROJECTS_DIR="$HOME/Projects"
+
+usage() {
+  echo "Uso: new-project {api|automation|dashboard} [nome]"
+  exit 1
+}
+
+TYPE="${1:-}"
+NAME_INPUT="${2:-}"
+
+[[ -z "$TYPE" ]] && usage
+
+case "$TYPE" in
+  api)
+    TEMPLATE_DIR="$TEMPLATES_DIR/template-api-fastapi"
+    PREFIX="api-"
+    ;;
+  automation)
+    TEMPLATE_DIR="$TEMPLATES_DIR/template-automation-python"
+    PREFIX="auto-"
+    ;;
+  dashboard)
+    TEMPLATE_DIR="$TEMPLATES_DIR/template-data-dashboard"
+    PREFIX="dash-"
+    ;;
+  *)
+    usage
+    ;;
+esac
+
+if [[ ! -d "$TEMPLATE_DIR" ]]; then
+  echo "❌ Template não encontrado: $TEMPLATE_DIR"
+  exit 1
+fi
+
+if [[ -z "$NAME_INPUT" ]]; then
+  TIMESTAMP="$(date +%Y-%m-%d-%H%M)"
+  PROJECT_NAME="${PREFIX}${TIMESTAMP}"
+else
+  PROJECT_NAME="${PREFIX}${NAME_INPUT}"
+fi
+
+DEST_DIR="$PROJECTS_DIR/$PROJECT_NAME"
+
+if [[ -d "$DEST_DIR" ]]; then
+  echo "❌ Projeto já existe: $DEST_DIR"
+  exit 1
+fi
+
+mkdir -p "$PROJECTS_DIR"
+cp -R "$TEMPLATE_DIR" "$DEST_DIR"
+
+# limpeza
+rm -rf "$DEST_DIR/.git" 2>/dev/null || true
+find "$DEST_DIR" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+find "$DEST_DIR" -type f -name "*.pyc" -delete 2>/dev/null || true
+
+# env padrão
+if [[ -f "$DEST_DIR/.env.example" ]]; then
+  cp "$DEST_DIR/.env.example" "$DEST_DIR/.env"
+fi
+
+echo "✔ Projeto criado com sucesso"
+echo
+echo "Tipo:     $TYPE"
+echo "Template: $(basename "$TEMPLATE_DIR")"
+echo "Nome:     $PROJECT_NAME"
+echo "Local:    $DEST_DIR"
+echo
+echo "Próximo passo:"
+echo "  cd $DEST_DIR"
+echo "  make deps"
