@@ -1,35 +1,40 @@
 # dotfiles
 
 Dotfiles pessoais para Linux, focados em reprodutibilidade, organização XDG
-e workflows com toolbox/podman.
+e workflows previsíveis com toolbox/podman.
 
-Este repositório existe para tornar reinstalações entediantes e previsíveis.
+Este repositório existe para tornar reinstalações **entediantes, repetíveis e auditáveis**.
 
-## Principais características
-- Organização XDG limpa (~/.config)
+## Características
+- Organização XDG limpa (`~/.config`)
 - Shell modular (bash e zsh)
 - Integração transparente host ↔ toolbox
-- Scripts utilitários versionados (bin/)
-- Documentação separada do código
-- Templates de projetos desacoplados do ambiente
+- Comandos utilitários versionados (`bin/`)
+- Documentação separada de configuração
+- Templates de projetos mantidos fora do controle de versão
 
-## Estrutura
-bin/        # comandos no PATH
-config/     # configurações versionadas
-docs/       # documentação e manuais
-scripts/    # manutenção e automação
+## Estrutura do repositório
 
-## Filosofia
-- Prefira soluções simples e previsíveis
-- Separe código, configuração e documentação
-- Evite abstrações “espertas”
-- Facilite rollback e auditoria
+| Caminho     | Descrição |
+|------------|-----------|
+| `bin/`     | Comandos pessoais no PATH |
+| `config/`  | Configurações versionadas (`~/.config`) |
+| `docs/`    | Documentação, decisões e filosofia |
+| `scripts/` | Bootstrap, manutenção e automação |
+| `archives/`| Snapshots locais (não versionados) |
+| `templates/` | Workspace de templates (não versionado) |
 
-## Requisitos
-- Linux
-- bash ou zsh
-- git
-- podman/toolbox (opcional)
+## O que NÃO é versionado
+- Templates de projetos em evolução
+- Snapshots locais e históricos
+- Cache, logs e arquivos temporários
+- Segredos ou credenciais
 
-## Licença
-MIT
+Esses itens são explicitamente ignorados via `.gitignore`.
+
+## Uso básico
+
+```bash
+git clone <repo> ~/.dotfiles
+cd ~/.dotfiles
+./bootstrap.sh
