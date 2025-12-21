@@ -28,3 +28,6 @@ archives/
 # IDE
 .vscode/
 .idea/
+
+# Workspace local
+templates/
