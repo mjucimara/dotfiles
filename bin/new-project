@@ -1,79 +1,57 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# new-project — cria projetos a partir de templates
-
 DOTFILES_DIR="$HOME/.dotfiles"
 TEMPLATES_DIR="$DOTFILES_DIR/templates"
 PROJECTS_DIR="$HOME/Projects"
 
 usage() {
-  echo "Uso: new-project {api|automation|dashboard} [nome]"
+  echo "Uso: new-project {api|automation|dashboard} [nome]" >&2
   exit 1
 }
+
+sanitize() {
+  echo "$1" | tr '[:upper:] ' '[:lower:]-' | tr -cd 'a-z0-9-'
+}
+
+declare -A TEMPLATES=(
+  [api]="template-api-fastapi:api-"
+  [automation]="template-automation-python:auto-"
+  [dashboard]="template-data-dashboard:dash-"
+)
 
 TYPE="${1:-}"
 NAME_INPUT="${2:-}"
 
-[[ -z "$TYPE" ]] && usage
+[[ -z "$TYPE" || -z "${TEMPLATES[$TYPE]:-}" ]] && usage
 
-case "$TYPE" in
-  api)
-    TEMPLATE_DIR="$TEMPLATES_DIR/template-api-fastapi"
-    PREFIX="api-"
-    ;;
-  automation)
-    TEMPLATE_DIR="$TEMPLATES_DIR/template-automation-python"
-    PREFIX="auto-"
-    ;;
-  dashboard)
-    TEMPLATE_DIR="$TEMPLATES_DIR/template-data-dashboard"
-    PREFIX="dash-"
-    ;;
-  *)
-    usage
-    ;;
-esac
+IFS=":" read -r TEMPLATE_NAME PREFIX <<< "${TEMPLATES[$TYPE]}"
+TEMPLATE_DIR="$TEMPLATES_DIR/$TEMPLATE_NAME"
 
-if [[ ! -d "$TEMPLATE_DIR" ]]; then
-  echo "❌ Template não encontrado: $TEMPLATE_DIR"
+[[ ! -d "$TEMPLATE_DIR" ]] && {
+  echo "❌ Template não encontrado: $TEMPLATE_DIR" >&2
   exit 1
-fi
+}
 
 if [[ -z "$NAME_INPUT" ]]; then
-  TIMESTAMP="$(date +%Y-%m-%d-%H%M)"
-  PROJECT_NAME="${PREFIX}${TIMESTAMP}"
+  PROJECT_NAME="${PREFIX}$(date +%Y-%m-%d-%H%M)"
 else
-  PROJECT_NAME="${PREFIX}${NAME_INPUT}"
+  PROJECT_NAME="${PREFIX}$(sanitize "$NAME_INPUT")"
 fi
 
 DEST_DIR="$PROJECTS_DIR/$PROJECT_NAME"
 
-if [[ -d "$DEST_DIR" ]]; then
-  echo "❌ Projeto já existe: $DEST_DIR"
+[[ -d "$DEST_DIR" ]] && {
+  echo "❌ Projeto já existe: $DEST_DIR" >&2
   exit 1
-fi
+}
 
-mkdir -p "$PROJECTS_DIR"
-cp -R "$TEMPLATE_DIR" "$DEST_DIR"
+mkdir -p "$DEST_DIR"
+rsync -a "$TEMPLATE_DIR/" "$DEST_DIR/"
 
-# limpeza
-rm -rf "$DEST_DIR/.git" 2>/dev/null || true
-find "$DEST_DIR" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-find "$DEST_DIR" -type f -name "*.pyc" -delete 2>/dev/null || true
+[[ -f "$DEST_DIR/.env.example" ]] && cp "$DEST_DIR/.env.example" "$DEST_DIR/.env"
 
-# env padrão
-if [[ -f "$DEST_DIR/.env.example" ]]; then
-  cp "$DEST_DIR/.env.example" "$DEST_DIR/.env"
-fi
+[[ -x "$DEST_DIR/.post-create.sh" ]] && (cd "$DEST_DIR" && ./.post-create.sh)
 
 echo "✔ Projeto criado com sucesso"
-echo
-echo "Tipo:     $TYPE"
-echo "Template: $(basename "$TEMPLATE_DIR")"
-echo "Nome:     $PROJECT_NAME"
-echo "Local:    $DEST_DIR"
-echo
-echo "Próximo passo:"
-echo "  cd $DEST_DIR"
-echo "  make deps"
+echo "→ $DEST_DIR"
