@@ -2,24 +2,27 @@
 set -euo pipefail
 
 PROJECT="${1:-}"
-
 PROJECTS_DIR="$HOME/Projects"
+
+usage() {
+  echo "Uso: ws-project {painel|api|data}" >&2
+  exit 1
+}
 
 case "$PROJECT" in
   painel)
-    swaymsg workspace number 1
-    exec foot -e toolbox enter toolbox-go bash -c "cd $PROJECTS_DIR/painel-eventos && exec bash"
+    ws-toolbox focus
+    exec foot -e bash -c "cd $PROJECTS_DIR/painel-eventos && exec bash"
     ;;
   api)
-    swaymsg workspace number 1
-    exec foot -e toolbox enter toolbox-go bash -c "cd $PROJECTS_DIR/api-exemplo && exec bash"
+    ws-toolbox focus
+    exec foot -e bash -c "cd $PROJECTS_DIR/api-exemplo && exec bash"
     ;;
   data)
-    swaymsg workspace number 3
-    exec foot -e toolbox enter toolbox-python bash -c "cd $PROJECTS_DIR/data-scripts && exec bash"
+    ws-toolbox support
+    exec foot -e bash -c "cd $PROJECTS_DIR/data-scripts && exec bash"
     ;;
   *)
-    echo "Uso: ws-project {painel|api|data}" >&2
-    exit 1
+    usage
     ;;
 esac
