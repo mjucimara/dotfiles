@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+MODE="${1:-}"
+
+case "$MODE" in
+  focus)
+    swaymsg workspace number 1
+    exec foot -e toolbox enter toolbox-go
+    ;;
+  support)
+    swaymsg workspace number 3
+    exec foot -e toolbox enter toolbox-python
+    ;;
+  *)
+    echo "Uso: ws-toolbox {focus|support}" >&2
+    exit 1
+    ;;
+esac
