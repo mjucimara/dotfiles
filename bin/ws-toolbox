@@ -2,12 +2,11 @@
 set -euo pipefail
 
 MODE="${1:-}"
+CMD="${2:-bash}"
 
 ensure_toolbox() {
   local name="$1"
-
   if ! toolbox list | awk '{print $1}' | grep -qx "$name"; then
-    echo "Criando toolbox: $name"
     toolbox create "$name"
   fi
 }
@@ -16,16 +15,15 @@ case "$MODE" in
   focus)
     swaymsg workspace number 1
     ensure_toolbox toolbox-go
-    exec foot -e toolbox enter toolbox-go
+    exec foot -e toolbox enter toolbox-go "$CMD"
     ;;
   support)
     swaymsg workspace number 3
     ensure_toolbox toolbox-python
-    exec foot -e toolbox enter toolbox-python
+    exec foot -e toolbox enter toolbox-python "$CMD"
     ;;
   *)
-    echo "Uso: ws-toolbox {focus|support}" >&2
+    echo "Uso: ws-toolbox {focus|support} [cmd]" >&2
     exit 1
     ;;
 esac
-
