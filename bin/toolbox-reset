@@ -1,13 +1,42 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "⛔ Removendo toolboxes"
+DRY_RUN="${DRY_RUN:-0}"
 
-toolbox list | awk '{print $1}' | while read -r tb; do
+echo "⛔ TOOLBOX RESET"
+echo "================"
+
+# Listar toolboxes existentes
+mapfile -t TBS < <(toolbox list --containers 2>/dev/null | awk 'NR>1 {print $NF}')
+
+if [[ ${#TBS[@]} -eq 0 ]]; then
+  echo "ℹ️  Nenhuma toolbox encontrada. Nada a fazer."
+  exit 0
+fi
+
+echo "As seguintes toolboxes serão REMOVIDAS:"
+for tb in "${TBS[@]}"; do
+  echo " - $tb"
+done
+echo
+
+if [[ "$DRY_RUN" == "1" ]]; then
+  echo "🧪 DRY-RUN ativo. Nada será removido."
+  exit 0
+fi
+
+read -rp "⚠️  Isso removerá TODAS as toolboxes. Continuar? [y/N] " ans
+[[ "$ans" != "y" ]] && { echo "❌ Operação cancelada."; exit 1; }
+
+echo
+echo "🧹 Removendo toolboxes..."
+for tb in "${TBS[@]}"; do
   toolbox rm -f "$tb" || true
 done
 
-echo "🧹 Removendo imagens toolbox"
+echo
+echo "🧹 Removendo imagens toolbox..."
 podman images | awk '/toolbox/ {print $3}' | xargs -r podman rmi -f || true
 
-echo "✅ Reset concluído"
+echo
+echo "✅ Reset concluído com sucesso."
