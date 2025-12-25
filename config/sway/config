@@ -1,9 +1,10 @@
 # Sway main config (user)
-# Ordem:
+# Ordem correta:
 # 1. Defaults da distro
 # 2. Overrides do sistema
 # 3. Configuração do usuário
-include '$(/usr/libexec/sway/layered-include \
+
+include $(/usr/libexec/sway/layered-include \
   "/usr/share/sway/config.d/*.conf" \
   "/etc/sway/config.d/*.conf" \
-  "${XDG_CONFIG_HOME:-$HOME/.config}/sway/config.d/*.conf")'
+  "$HOME/.config/sway/config.d/*.conf")
